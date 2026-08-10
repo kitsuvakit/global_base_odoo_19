@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="crm_lead_view_form_inherit_ai" model="ir.ui.view">
+        <field name="name">crm.lead.form.inherit.ai</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <header position="inside">
+                <button name="action_generate_ai_response" string="🤖 Sugerir Respuesta IA" type="object" class="btn-info"/>
+                <button name="action_create_ai_sale_order" string="⚡ Autogenerar Cotización IA" type="object" class="btn-success"/>
+            </header>
+            <xpath expr="//page[last()]" position="after">
+                <page string="🤖 Agente de Ventas IA" name="ai_agent">
+                    <group>
+                        <group string="Análisis de IA">
+                            <field name="ai_last_intent"/>
+                            <field name="ai_quote_count"/>
+                        </group>
+                        <group string="Sugerencia de Respuesta">
+                            <field name="ai_suggested_response" nolabel="1" placeholder="Presione 'Sugerir Respuesta IA' para generar una propuesta inteligente..."/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
