@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_mobile_presale_root"
+              name="Preventa Móvil"
+              parent="sale.sale_menu_root"
+              sequence="20"/>
+
+    <menuitem id="menu_mobile_presale_routes"
+              name="Rutas Diarias"
+              parent="menu_mobile_presale_root"
+              action="action_presale_route"
+              sequence="10"/>
+
+    <menuitem id="menu_mobile_presale_visits"
+              name="Registro de Visitas"
+              parent="menu_mobile_presale_root"
+              action="action_presale_visit"
+              sequence="20"/>
+
+    <menuitem id="menu_mobile_presale_catalog"
+              name="Catálogo Móvil de Calle"
+              parent="menu_mobile_presale_root"
+              action="action_mobile_presale_catalog"
+              sequence="30"/>
+</odoo>

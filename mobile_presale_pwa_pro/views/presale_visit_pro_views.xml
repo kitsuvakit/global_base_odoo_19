@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_presale_visit_form_pro" model="ir.ui.view">
+        <field name="name">presale.visit.form.pro</field>
+        <field name="model">presale.visit</field>
+        <field name="inherit_id" ref="mobile_presale_pwa.view_presale_visit_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group" position="after">
+                <group string="Firma Digital y Modo Offline PRO">
+                    <group>
+                        <field name="signature_name"/>
+                        <field name="digital_signature" widget="image" class="oe_avatar"/>
+                    </group>
+                    <group>
+                        <field name="offline_sync_status" widget="badge" decoration-success="offline_sync_status == 'synced'" decoration-warning="offline_sync_status == 'pending_sync'"/>
+                        <field name="route_optimization_seq"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_presale_route_form_pro" model="ir.ui.view">
+        <field name="name">presale.route.form.pro</field>
+        <field name="model">presale.route</field>
+        <field name="inherit_id" ref="mobile_presale_pwa.view_presale_route_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_optimize_route_gps_pro" string="Optimizar Ruta GPS PRO" type="object" class="btn-info"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

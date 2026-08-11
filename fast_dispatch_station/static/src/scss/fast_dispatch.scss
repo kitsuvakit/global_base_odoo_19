@@ -1,0 +1,36 @@
+/* Estilos para el fondo completo (background) de filas en la Estación de Despacho Rápido */
+.o_field_widget[name="line_ids"] .o_list_table {
+    tbody tr.text-success,
+    tbody tr.text-success > td {
+        background-color: #d1e7dd !important;
+        color: #0f5132 !important;
+    }
+
+    tbody tr.text-warning,
+    tbody tr.text-warning > td {
+        background-color: #fff3cd !important;
+        color: #664d03 !important;
+    }
+
+    tbody tr.text-danger,
+    tbody tr.text-danger > td {
+        background-color: #f8d7da !important;
+        color: #842029 !important;
+    }
+
+    /* Ajuste visual al pasar el cursor (hover) */
+    tbody tr.text-success:hover,
+    tbody tr.text-success:hover > td {
+        background-color: #c1e2d3 !important;
+    }
+
+    tbody tr.text-warning:hover,
+    tbody tr.text-warning:hover > td {
+        background-color: #ffe8a1 !important;
+    }
+
+    tbody tr.text-danger:hover,
+    tbody tr.text-danger:hover > td {
+        background-color: #f5c2c7 !important;
+    }
+}

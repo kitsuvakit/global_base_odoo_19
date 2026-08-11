@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_financial_reports_root"
+              name="Reportes Financieros Dinámicos"
+              parent="account.menu_finance_reports"
+              action="action_financial_report_wizard"
+              sequence="1"/>
+</odoo>

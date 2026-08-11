@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_financial_report_wizard_form_pro" model="ir.ui.view">
+        <field name="name">financial.report.wizard.form.pro</field>
+        <field name="model">financial.report.wizard</field>
+        <field name="inherit_id" ref="dynamic_financial_reports_community.view_financial_report_wizard_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_export_excel_pro" string="📊 Exportar a Excel PRO" type="object" class="btn-success"/>
+            </xpath>
+            <xpath expr="//group" position="after">
+                <group string="🔥 Opciones Avanzadas PRO">
+                    <group>
+                        <field name="enable_comparison"/>
+                        <field name="comparison_type" invisible="not enable_comparison"/>
+                    </group>
+                    <group invisible="not enable_comparison">
+                        <field name="comp_date_from"/>
+                        <field name="comp_date_to"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

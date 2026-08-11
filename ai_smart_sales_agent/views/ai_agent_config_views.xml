@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ai_agent_config_form" model="ir.ui.view">
+        <field name="name">ai.agent.config.form</field>
+        <field name="model">ai.agent.config</field>
+        <field name="arch" type="xml">
+            <form string="Configuración Agente de Ventas IA">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Proveedor de Inteligencia Artificial">
+                            <field name="ai_provider"/>
+                            <field name="model_name"/>
+                            <field name="api_key" password="1"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Políticas de Automatización">
+                            <field name="auto_create_quote"/>
+                            <field name="require_stock_check"/>
+                            <field name="total_ai_quotes_generated"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="🤖 Prompt del Rol de Vendedor" name="prompt">
+                            <field name="system_prompt" placeholder="Escriba las instrucciones de venta para la IA..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ai_agent_config" model="ir.actions.act_window">
+        <field name="name">Configuración Agente IA</field>
+        <field name="res_model">ai.agent.config</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>
