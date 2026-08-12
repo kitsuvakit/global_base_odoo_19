@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
-  <rect width="100" height="100" rx="20" fill="#311B92"/>
-  <circle cx="50" cy="45" r="22" fill="none" stroke="#FFD700" stroke-width="4"/>
-  <circle cx="50" cy="45" r="10" fill="#7C4DFF"/>
-  <path d="M30 75 L70 75 L50 90 Z" fill="#FFD700"/>
-  <text x="50" y="22" font-family="Arial" font-size="8" font-weight="bold" fill="#FFD700" text-anchor="middle">VISION AI PRO</text>
-</svg>
