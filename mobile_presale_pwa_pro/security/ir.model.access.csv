@@ -1,3 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_presale_visit_pro_salesman,presale.visit.pro.salesman,mobile_presale_pwa.model_presale_visit,sales_team.group_sale_salesman,1,1,1,1
-access_presale_route_pro_salesman,presale.route.pro.salesman,mobile_presale_pwa.model_presale_route,sales_team.group_sale_salesman,1,1,1,1
