@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <record id="action_mobile_presale_catalog" model="ir.actions.act_window">
-        <field name="name">Catálogo Móvil de Calle</field>
-        <field name="res_model">product.product</field>
-        <field name="view_mode">kanban,list,form</field>
-        <field name="domain">[('sale_ok', '=', True)]</field>
-    </record>
-</odoo>
