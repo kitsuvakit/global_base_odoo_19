@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Security Category -->
+        <record id="category_product_barcode_scanner" model="ir.module.category">
+            <field name="name">Escáner Móvil y Conteos Cíclicos</field>
+            <field name="description">Permisos de acceso para el Escáner Móvil de Productos y Conteos Cíclicos</field>
+            <field name="sequence">25</field>
+        </record>
+
+        <!-- Group 1: Scanner Basic User -->
+        <record id="group_scanner_user" model="res.groups">
+            <field name="name">Usuario de Escáner Móvil</field>
+            <field name="category_id" ref="category_product_barcode_scanner"/>
+            <field name="comment">Permite acceder al escáner móvil para consultar productos, stock e imágenes.</field>
+        </record>
+
+        <!-- Group 2: Cycle Count Operator -->
+        <record id="group_scanner_cycle_count" model="res.groups">
+            <field name="name">Operador de Conteos Cíclicos</field>
+            <field name="category_id" ref="category_product_barcode_scanner"/>
+            <field name="implied_ids" eval="[(4, ref('group_scanner_user'))]"/>
+            <field name="comment">Permite iniciar, registrar, finalizar y exportar sesiones de Conteo Cíclico de Inventario.</field>
+        </record>
+    </data>
+</odoo>

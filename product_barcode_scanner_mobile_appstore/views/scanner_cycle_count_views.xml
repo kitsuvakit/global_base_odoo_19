@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Sequence for Cycle Count Code -->
+    <record id="seq_scanner_cycle_count" model="ir.sequence">
+        <field name="name">Secuencia de Conteo Cíclico Móvil</field>
+        <field name="code">scanner.cycle.count</field>
+        <field name="prefix">CC/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- Tree View -->
+    <record id="view_scanner_cycle_count_tree" model="ir.ui.view">
+        <field name="name">scanner.cycle.count.tree</field>
+        <field name="model">scanner.cycle.count</field>
+        <field name="arch" type="xml">
+            <list string="Conteos Cíclicos Móviles" decoration-info="state=='in_progress'" decoration-success="state=='completed'" decoration-muted="state=='cancelled'">
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="date"/>
+                <field name="date_end"/>
+                <field name="total_lines"/>
+                <field name="total_system_qty"/>
+                <field name="total_counted_qty"/>
+                <field name="total_diff_qty" decoration-danger="total_diff_qty &lt; 0" decoration-info="total_diff_qty &gt; 0"/>
+                <field name="total_diff_usd" widget="monetary" decoration-danger="total_diff_usd &lt; 0" decoration-info="total_diff_usd &gt; 0"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_scanner_cycle_count_form" model="ir.ui.view">
+        <field name="name">scanner.cycle.count.form</field>
+        <field name="model">scanner.cycle.count</field>
+        <field name="arch" type="xml">
+            <form string="Conteo Cíclico Móvil">
+                <header>
+                    <button name="action_start" type="object" string="Iniciar Conteo" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_finish" type="object" string="Finalizar Conteo" class="btn-success" invisible="state != 'in_progress'"/>
+                    <button name="action_cancel" type="object" string="Cancelar" invisible="state in ('completed', 'cancelled')"/>
+                    <button name="action_reset_to_draft" type="object" string="Volver a Borrador" invisible="state != 'cancelled'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,completed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="user_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="date"/>
+                            <field name="date_end"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Líneas de Conteo Escaneadas">
+                            <field name="line_ids">
+                                <list string="Líneas Escaneadas" editable="bottom">
+                                    <field name="barcode"/>
+                                    <field name="default_code"/>
+                                    <field name="product_id"/>
+                                    <field name="location_name"/>
+                                    <field name="system_qty"/>
+                                    <field name="counted_qty"/>
+                                    <field name="difference_qty" decoration-danger="difference_qty &lt; 0" decoration-info="difference_qty &gt; 0"/>
+                                    <field name="unit_price_usd"/>
+                                    <field name="difference_value_usd" decoration-danger="difference_value_usd &lt; 0" decoration-info="difference_value_usd &gt; 0"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Resumen y Totales">
+                            <group>
+                                <group string="Metricas de Unidades">
+                                    <field name="total_lines"/>
+                                    <field name="total_system_qty"/>
+                                    <field name="total_counted_qty"/>
+                                    <field name="total_diff_qty"/>
+                                </group>
+                                <group string="Valuacion Monetaria ($ USD)">
+                                    <field name="total_diff_usd"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action for Backend -->
+    <record id="action_scanner_cycle_count" model="ir.actions.act_window">
+        <field name="name">Conteos Cíclicos Móviles</field>
+        <field name="res_model">scanner.cycle.count</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay conteos cíclicos registrados aún.
+            </p>
+            <p>
+                Los conteos cíclicos se inician y ejecutan en tiempo real desde la aplicación del Escáner Móvil.
+            </p>
+        </field>
+    </record>
+
+    <!-- Sub-menu under Operations in Inventory -->
+    <menuitem id="menu_scanner_cycle_count"
+              name="Conteos Cíclicos Móviles"
+              parent="stock.menu_stock_warehouse_mgmt"
+              action="action_scanner_cycle_count"
+              groups="product_barcode_scanner_mobile_appstore.group_scanner_cycle_count"
+              sequence="35"/>
+</odoo>

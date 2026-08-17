@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="product_barcode_scanner_mobile.ScannerActionTemplate">
+        <div class="scanner-fullscreen-wrapper">
+            <header class="scanner-header-bar">
+                <div class="scanner-header-inner">
+                    <div class="scanner-logo-title">
+                        <span class="app-logo-badge">📱</span>
+                        <div>
+                            <h2>Escáner Móvil</h2>
+                            <span class="app-subtitle">Consulta instantánea de productos</span>
+                        </div>
+                    </div>
+                    <div class="header-status-indicator">
+                        <span class="status-dot"></span>
+                        <span class="status-text">v1.0</span>
+                    </div>
+                </div>
+            </header>
+
+            <main class="scanner-content-container">
+                <section class="scanner-controls-card">
+                    <div class="input-search-wrapper">
+                        <div class="search-input-inner">
+                            <span class="search-icon">🔍</span>
+                            <input type="text"
+                                   class="scanner-search-input"
+                                   placeholder="Escanear o escribir código/SKU..."
+                                   t-model="state.searchTerm"
+                                   t-on-keydown="(e) => e.key === 'Enter' &amp;&amp; this.onSearch()"/>
+                        </div>
+                        <button class="scanner-btn scanner-btn-search" t-on-click="onSearch">
+                            Buscar
+                        </button>
+                    </div>
+
+                    <div class="camera-actions-row">
+                        <button class="scanner-btn scanner-btn-camera" t-on-click="toggleCamera">
+                            <span class="cam-icon">📷</span>
+                            <t t-if="!state.cameraActive">Activar Cámara del Teléfono</t>
+                            <t t-else="">Cerrar Cámara</t>
+                        </button>
+                    </div>
+
+                    <t t-if="state.cameraActive">
+                        <div class="camera-viewport">
+                            <video id="owl_video_feed" autoplay="autoplay" playsinline="playsinline"></video>
+                            <div class="scanner-laser-line"></div>
+                            <div class="scanner-corner-reticle top-left"></div>
+                            <div class="scanner-corner-reticle top-right"></div>
+                            <div class="scanner-corner-reticle bottom-left"></div>
+                            <div class="scanner-corner-reticle bottom-right"></div>
+                            <div class="scanner-instruction-tag">Alinee el código de barras en el marco</div>
+                        </div>
+                    </t>
+                </section>
+
+                <t t-if="state.error">
+                    <div class="scanner-error-card">
+                        <span class="error-icon">⚠️</span>
+                        <span t-esc="state.error"/>
+                    </div>
+                </t>
+
+                <t t-if="state.product">
+                    <article class="product-result-card">
+                        <div class="product-header">
+                            <div class="badges-group">
+                                <span class="badge-tag badge-barcode">
+                                    <span class="badge-icon">📊</span> <t t-esc="state.product.barcode"/>
+                                </span>
+                                <span class="badge-tag badge-sku">
+                                    <span class="badge-icon">🏷️</span> <t t-esc="state.product.default_code"/>
+                                </span>
+                            </div>
+                            <div t-attf-class="stock-status-pill #{state.product.is_in_stock ? 'in-stock' : 'out-of-stock'}">
+                                <span class="stock-dot"></span>
+                                <t t-if="state.product.is_in_stock">
+                                    EN STOCK (<t t-esc="state.product.qty_available"/> u)
+                                </t>
+                                <t t-else="">
+                                    SIN STOCK (<t t-esc="state.product.qty_available"/> u)
+                                </t>
+                            </div>
+                        </div>
+
+                        <div class="product-body">
+                            <div class="product-img-wrapper">
+                                <img t-att-src="state.product.image_url" alt="Producto"/>
+                            </div>
+
+                            <div class="product-title-section">
+                                <span class="category-breadcrumb"><t t-esc="state.product.category"/></span>
+                                <h3 class="product-title"><t t-esc="state.product.name"/></h3>
+                            </div>
+
+                            <div class="product-details-grid">
+                                <div class="grid-card grid-card-brand">
+                                    <div class="card-icon">🏷️</div>
+                                    <div class="card-info">
+                                        <span class="grid-label">Marca Repuesto</span>
+                                        <span class="grid-value"><t t-esc="state.product.product_brand"/></span>
+                                    </div>
+                                </div>
+
+                                <div class="grid-card grid-card-car">
+                                    <div class="card-icon">🚗</div>
+                                    <div class="card-info">
+                                        <span class="grid-label">Marca / Carro</span>
+                                        <span class="grid-value"><t t-esc="state.product.brand_car"/></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="price-hero-card">
+                                <div class="price-hero-label">
+                                    <span class="price-icon">💰</span> Precio de Venta
+                                </div>
+                                <div class="price-hero-amount"><t t-esc="state.product.formatted_price"/></div>
+                            </div>
+
+                            <div class="card-actions-bar">
+                                <button class="action-btn btn-action-copy" t-on-click="copySpecs">
+                                    📋 Copiar Ficha
+                                </button>
+                                <button class="action-btn btn-action-next" t-on-click="scanNext">
+                                    🔄 Escanear Otro
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                </t>
+
+                <t t-if="!state.product &amp;&amp; !state.error">
+                    <section class="scanner-empty-card">
+                        <div class="empty-icon-pulse">📦</div>
+                        <h3>Listo para Escanear</h3>
+                        <p>Presione el botón verde para usar la cámara de su teléfono o escriba un código manualmente.</p>
+                        <div class="quick-tips-row">
+                            <span class="tip-pill">⚡ Respuesta instantánea</span>
+                            <span class="tip-pill">📲 100% Móvil Responsive</span>
+                        </div>
+                    </section>
+                </t>
+            </main>
+        </div>
+    </t>
+</templates>

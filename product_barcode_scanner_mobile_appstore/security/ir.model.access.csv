@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_scanner_cycle_count_user,scanner.cycle.count.user,model_scanner_cycle_count,group_scanner_cycle_count,1,1,1,1
+access_scanner_cycle_count_line_user,scanner.cycle.count.line.user,model_scanner_cycle_count_line,group_scanner_cycle_count,1,1,1,1
+access_scanner_cycle_count_manager,scanner.cycle.count.manager,model_scanner_cycle_count,base.group_system,1,1,1,1
+access_scanner_cycle_count_line_manager,scanner.cycle.count.line.manager,model_scanner_cycle_count_line,base.group_system,1,1,1,1

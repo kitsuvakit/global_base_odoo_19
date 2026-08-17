@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- URL Action for Odoo Web Backend App Switcher -->
+    <record id="action_product_barcode_scanner_mobile_url" model="ir.actions.act_url">
+        <field name="name">Escáner Móvil de Productos</field>
+        <field name="url">/product_scanner</field>
+        <field name="target">self</field>
+    </record>
+
+    <!-- App Switcher Top Menu Item -->
+    <menuitem id="menu_product_barcode_scanner_root"
+              name="Escáner Móvil"
+              action="action_product_barcode_scanner_mobile_url"
+              web_icon="product_barcode_scanner_mobile_appstore,static/description/icon.png"
+              groups="product_barcode_scanner_mobile_appstore.group_scanner_user"
+              sequence="5"/>
+
+    <!-- Sub-menu in Inventory -->
+    <menuitem id="menu_product_barcode_scanner_inventory"
+              name="Escáner Móvil"
+              parent="stock.menu_stock_root"
+              action="action_product_barcode_scanner_mobile_url"
+              groups="product_barcode_scanner_mobile_appstore.group_scanner_user"
+              sequence="1"/>
+
+    <!-- Access Denied Template -->
+    <template id="scanner_access_denied" name="Acceso Denegado - Escáner Móvil">
+        <html lang="es">
+            <head>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+                <title>Acceso Denegado - Escáner Móvil</title>
+                <link rel="stylesheet" href="/product_barcode_scanner_mobile_appstore/static/src/css/barcode_scanner.css?v=19.0.1.0.0"/>
+            </head>
+            <body class="scanner-standalone-body">
+                <div class="scanner-content-container" style="display: flex; align-items: center; justify-content: center; min-height: 80vh;">
+                    <div class="scanner-empty-card" style="max-width: 440px; border-color: rgba(244, 63, 94, 0.4);">
+                        <div style="font-size: 3.5rem; margin-bottom: 14px;">🔒</div>
+                        <h3 style="color: #fda4af !important;">Acceso Restringido</h3>
+                        <p style="color: #94a3b8 !important;">No posee los permisos necesarios para utilizar el Escáner Móvil.</p>
+                        <p style="font-size: 0.82rem; color: #64748b !important;">Contacte al administrador del sistema para que le otorgue el grupo de seguridad correspondiente.</p>
+                        <a href="/web" class="scanner-btn scanner-btn-search" style="margin-top: 16px; text-decoration: none;">
+                            🏠 Regresar a Odoo
+                        </a>
+                    </div>
+                </div>
+            </body>
+        </html>
+    </template>
+
+    <!-- Standalone Fullscreen Mobile App Template for /product_scanner -->
+    <template id="scanner_standalone_page" name="Escáner Móvil de Productos">
+        <t t-option-unset="True">
+            <html lang="es">
+                <head>
+                    <meta charset="utf-8"/>
+                    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"/>
+                    <meta name="apple-mobile-web-app-capable" content="yes"/>
+                    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+                    <title>Escáner Móvil de Productos</title>
+                    <link rel="stylesheet" href="/product_barcode_scanner_mobile_appstore/static/src/css/barcode_scanner.css?v=19.0.1.0.0"/>
+                    <!-- Local Offline Html5Qrcode Library -->
+                    <script src="/product_barcode_scanner_mobile_appstore/static/src/js/lib/html5-qrcode.min.js?v=19.0.1.0.0"></script>
+                </head>
+                <body class="scanner-standalone-body">
+                    <div id="product_scanner_standalone_app">
+                        <!-- App Header with Glassmorphism & Mode Controls -->
+                        <header class="scanner-header-bar">
+                            <div class="scanner-header-inner">
+                                <div class="scanner-logo-title">
+                                    <div class="app-logo-badge">
+                                        <span>📱</span>
+                                    </div>
+                                    <div>
+                                        <h2>Escáner Móvil <span class="badge-pro">PRO</span></h2>
+                                        <span class="app-subtitle">Consulta instantánea &amp; Conteo Cíclico</span>
+                                    </div>
+                                </div>
+                                <div class="header-controls-group">
+                                    <!-- BCV Ticker Pill -->
+                                    <div class="bcv-ticker-pill" title="Tasa BCV oficial del día">
+                                        <span class="bcv-icon">💵</span>
+                                        <span id="header_bcv_rate" class="bcv-rate-text">Cargando BCV...</span>
+                                    </div>
+                                    <!-- Sound Toggle Button -->
+                                    <button type="button" id="btn_toggle_sound" class="header-tool-btn active" title="Sonido al escanear">
+                                        <span id="sound_icon">🔊</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </header>
+
+                        <!-- App Main Content Container -->
+                        <main class="scanner-content-container">
+                            <!-- Operation Mode Switcher Tabs -->
+                            <div class="mode-tabs-container" t-if="has_cycle_count_permission">
+                                <button type="button" id="tab_mode_lookup" class="mode-tab-btn active">
+                                    🔍 Consulta de Productos
+                                </button>
+                                <button type="button" id="tab_mode_cycle" class="mode-tab-btn">
+                                    📋 Conteo Cíclico
+                                </button>
+                            </div>
+
+                            <!-- Cycle Count Header Banner (Shown in Cycle Mode) -->
+                            <div id="cycle_count_banner" class="cycle-banner-card d-none">
+                                <div class="cycle-banner-info">
+                                    <span class="cycle-banner-badge" id="cycle_session_code">CC/NUEVO</span>
+                                    <div class="cycle-banner-metrics">
+                                        <span class="metric-pill">📦 Distintos: <strong id="cc_stat_lines">0</strong></span>
+                                        <span class="metric-pill">🔢 Sistema: <strong id="cc_stat_sys">0</strong></span>
+                                        <span class="metric-pill">✅ Contado: <strong id="cc_stat_cnt">0</strong></span>
+                                    </div>
+                                </div>
+                                <div class="cycle-banner-actions">
+                                    <button type="button" id="btn_cc_start" class="btn-cc-action btn-cc-start">
+                                        ▶ Iniciar Conteo
+                                    </button>
+                                    <button type="button" id="btn_cc_finish" class="btn-cc-action btn-cc-finish d-none">
+                                        🏁 Finalizar
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Search & Camera Controls Card -->
+                            <section class="scanner-controls-card">
+                                <form id="scanner_search_form" onsubmit="return false;" autocomplete="off">
+                                    <div class="input-search-wrapper">
+                                        <div class="search-input-inner">
+                                            <span class="search-icon">🔍</span>
+                                            <input type="text" id="manual_barcode_input" name="manual_barcode_input" class="scanner-search-input" placeholder="Escanear o escribir código/SKU..." autofocus="autofocus" autocomplete="off" enterkeyhint="search"/>
+                                            <button type="button" id="btn_clear_input" name="btn_clear_input" class="btn-clear-input d-none" title="Limpiar">✖</button>
+                                        </div>
+                                        <button type="submit" id="btn_search_barcode" name="btn_search_barcode" class="scanner-btn scanner-btn-search">
+                                            Buscar
+                                        </button>
+                                    </div>
+                                </form>
+
+                                <div class="camera-actions-row">
+                                    <!-- Native Camera Trigger Button -->
+                                    <label id="btn_toggle_camera" name="btn_toggle_camera" class="scanner-btn scanner-btn-camera">
+                                        <span class="cam-icon">📷</span> Activar Lector de Cámara
+                                        <input type="file" id="native_camera_input" name="native_camera_input" accept="image/*" capture="environment" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;"/>
+                                    </label>
+                                </div>
+
+                                <!-- Full Camera Viewport Container -->
+                                <div id="camera_viewport_container" class="camera-viewport d-none">
+                                    <div id="html5qr_code_reader"></div>
+                                    <video id="camera_video_feed" class="d-none" playsinline="playsinline" autoplay="autoplay"></video>
+                                    
+                                    <!-- Sci-fi Laser & Reticle Grid -->
+                                    <div class="scanner-laser-line"></div>
+                                    <div class="scanner-corner-reticle top-left"></div>
+                                    <div class="scanner-corner-reticle top-right"></div>
+                                    <div class="scanner-corner-reticle bottom-left"></div>
+                                    <div class="scanner-corner-reticle bottom-right"></div>
+                                    
+                                    <div class="camera-overlay-controls">
+                                        <button type="button" id="btn_toggle_torch" name="btn_toggle_torch" class="cam-overlay-btn" title="Linterna">🔦 Linterna</button>
+                                        <button type="button" id="btn_switch_cam" name="btn_switch_cam" class="cam-overlay-btn" title="Cambiar Cámara">🔄 Cambiar</button>
+                                        <button type="button" id="btn_stop_camera" name="btn_stop_camera" class="cam-overlay-btn btn-close-cam">✖ Cerrar</button>
+                                    </div>
+                                    <div class="scanner-instruction-tag">Alinee el código de barras en el marco de enfoque</div>
+                                </div>
+                            </section>
+
+                            <!-- Live Cycle Count Table Section (Shown in Cycle Mode) -->
+                            <section id="cycle_count_live_section" class="cycle-live-card d-none">
+                                <div class="cycle-live-header">
+                                    <h4>📋 Productos en la Sesión de Conteo</h4>
+                                    <span class="live-count-badge" id="cc_live_badge">0 ítems</span>
+                                </div>
+                                <div class="cycle-table-responsive">
+                                    <table class="cycle-live-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Producto / Ref</th>
+                                                <th class="text-center">Sistema</th>
+                                                <th class="text-center">Contado</th>
+                                                <th class="text-center">Diferencia</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="cycle_live_tbody">
+                                            <!-- Dynamic Rows Rendered Here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+
+                            <!-- Modern Landing / Empty State Dashboard (Lookup Mode) -->
+                            <section id="scanner_empty_state" class="scanner-empty-card">
+                                <!-- Dashboard Stats Row -->
+                                <div class="dashboard-stats-grid">
+                                    <div class="dash-stat-card">
+                                        <div class="stat-icon-wrapper blue">📊</div>
+                                        <div class="stat-details">
+                                            <span class="stat-value" id="dash_scanned_count">0</span>
+                                            <span class="stat-label">Escaneados en Sesión</span>
+                                        </div>
+                                    </div>
+                                    <div class="dash-stat-card">
+                                        <div class="stat-icon-wrapper emerald">💵</div>
+                                        <div class="stat-details">
+                                            <span class="stat-value" id="dash_bcv_val">-- Bs.</span>
+                                            <span class="stat-label">Tasa BCV del Día</span>
+                                        </div>
+                                    </div>
+                                    <div class="dash-stat-card">
+                                        <div class="stat-icon-wrapper amber">📡</div>
+                                        <div class="stat-details">
+                                            <span class="stat-value text-emerald">En Línea</span>
+                                            <span class="stat-label">Estado Servidor</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Scanner Quick Instructions & Features -->
+                                <div class="empty-welcome-box">
+                                    <div class="empty-icon-pulse">📦</div>
+                                    <h3>Lector de Almacén Listo</h3>
+                                    <p>Escanee un código de barras con la cámara o use un lector físico USB/Bluetooth.</p>
+                                    <div class="quick-tips-row">
+                                        <span class="tip-pill">⚡ Respuesta instantánea</span>
+                                        <span class="tip-pill">🏬 Stock Multialmacén</span>
+                                        <span class="tip-pill">📋 Conteos Cíclicos</span>
+                                    </div>
+                                </div>
+
+                                <!-- Recent Scans History Section -->
+                                <div id="recent_scans_section" class="recent-scans-container d-none">
+                                    <div class="recent-scans-header">
+                                        <h4>🕒 Escaneos Recientes</h4>
+                                        <button type="button" id="btn_clear_history" class="btn-text-action">Limpiar</button>
+                                    </div>
+                                    <div id="recent_scans_list" class="recent-scans-scroll">
+                                        <!-- Dynamic History Items Rendered Here -->
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Product Result Card (Ultra Responsive & Glassmorphic) -->
+                            <article id="scanner_result_card" class="product-result-card d-none">
+                                <!-- Top Badges & Stock Status -->
+                                <div class="product-header">
+                                    <div class="badges-group">
+                                        <span class="badge-tag badge-barcode" id="res_barcode_badge">
+                                            <span class="badge-icon">📊</span> <span id="res_barcode">BARCODE</span>
+                                        </span>
+                                        <span class="badge-tag badge-sku" id="res_sku_badge">
+                                            <span class="badge-icon">🏷️</span> <span id="res_default_code">REF</span>
+                                        </span>
+                                    </div>
+                                    <div id="res_stock_badge" class="stock-status-pill in-stock">
+                                        <span class="stock-dot"></span>
+                                        <span id="res_stock_text">EN STOCK (0)</span>
+                                    </div>
+                                </div>
+
+                                <!-- Product Showcase Body -->
+                                <div class="product-body">
+                                    <!-- Clickable Image Viewer -->
+                                    <div class="product-img-wrapper" id="res_img_container">
+                                        <img id="res_image" src="/web/static/img/placeholder.png" alt="Producto"/>
+                                        <div class="img-zoom-hint">🔍 Tap para ampliar</div>
+                                    </div>
+
+                                    <!-- Product Description & Category -->
+                                    <div class="product-title-section">
+                                        <span class="category-breadcrumb" id="res_category">General</span>
+                                        <h3 class="product-title" id="res_name">Nombre del Producto</h3>
+                                    </div>
+
+                                    <!-- High Visibility Data Grid (Marca Repuesto, Marca Carro, Ubicación) -->
+                                    <div class="product-details-grid">
+                                        <div class="grid-card grid-card-brand">
+                                            <div class="card-icon">🏷️</div>
+                                            <div class="card-info">
+                                                <span class="grid-label">Marca / Fabricante</span>
+                                                <span class="grid-value" id="res_product_brand">N/A</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="grid-card grid-card-car">
+                                            <div class="card-icon">🚗</div>
+                                            <div class="card-info">
+                                                <span class="grid-label">Compatibilidad</span>
+                                                <span class="grid-value" id="res_brand_car">N/A</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="grid-card grid-card-loc">
+                                            <div class="card-icon">📍</div>
+                                            <div class="card-info">
+                                                <span class="grid-label">Ubicación Almacén</span>
+                                                <span class="grid-value" id="res_location">N/A</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="grid-card grid-card-uom">
+                                            <div class="card-icon">📦</div>
+                                            <div class="card-info">
+                                                <span class="grid-label">Unidad de Medida</span>
+                                                <span class="grid-value" id="res_uom">Unidades</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Multi-Warehouse Stock Breakdown Box -->
+                                    <div class="warehouse-stock-box">
+                                        <div class="wh-box-title">
+                                            <span>🏬 Disponibilidad por Almacén</span>
+                                            <span class="wh-total-badge" id="res_wh_total_badge">Total: 0 Uds</span>
+                                        </div>
+                                        <div class="wh-stock-grid" id="wh_stock_grid">
+                                            <!-- Dynamic Warehouse Stock Badges Rendered Here -->
+                                        </div>
+                                    </div>
+
+                                    <!-- Hero Price Card (Dual Currency: USD + BCV VES Rate) -->
+                                    <div class="price-hero-card">
+                                        <div class="price-hero-label">
+                                            <span class="price-icon">💰</span> Precio de Venta
+                                        </div>
+                                        <div class="price-hero-amount" id="res_price">$0.00 USD</div>
+                                        <div class="price-hero-bs-sub" id="res_price_ves_container">
+                                            <span class="price-bs-val" id="res_price_ves">0.00 Bs.</span>
+                                            <span class="bcv-tag-sub" id="res_bcv_rate">(Tasa BCV: 0.00 Bs./$)</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Quick Action Buttons Bar -->
+                                    <div class="card-actions-bar">
+                                        <button type="button" id="btn_copy_specs" name="btn_copy_specs" class="action-btn btn-action-copy">
+                                            📋 Copiar Ficha
+                                        </button>
+                                        <button type="button" id="btn_share_whatsapp" name="btn_share_whatsapp" class="action-btn btn-action-whatsapp">
+                                            💬 Compartir
+                                        </button>
+                                        <a id="btn_open_odoo" href="#" target="_blank" class="action-btn btn-action-odoo">
+                                            🔗 En Odoo
+                                        </a>
+                                        <button type="button" id="btn_scan_next" name="btn_scan_next" class="action-btn btn-action-next">
+                                            🔄 Escanear Otro
+                                        </button>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <!-- Error Notification Alert (Inline) -->
+                            <div id="scanner_error_alert" class="scanner-error-card d-none">
+                                <span class="error-icon">⚠️</span>
+                                <span id="scanner_error_message">No se encontró el producto</span>
+                            </div>
+                        </main>
+
+                        <!-- Toast Notification Popup -->
+                        <div id="scanner_toast" class="scanner-toast d-none">
+                            <span id="toast_text">Mensaje</span>
+                        </div>
+
+                        <!-- Lightbox Image Modal -->
+                        <div id="image_lightbox_modal" class="lightbox-modal d-none">
+                            <div class="lightbox-content">
+                                <span id="btn_close_lightbox" class="lightbox-close">✖</span>
+                                <img id="lightbox_img" src="" alt="Ampliada"/>
+                            </div>
+                        </div>
+
+                        <!-- Cycle Count Finished Summary Modal -->
+                        <div id="cc_summary_modal" class="odoo-modal-backdrop d-none">
+                            <div class="odoo-modal-card cc-summary-card">
+                                <div class="odoo-modal-header">
+                                    <div class="odoo-modal-title">
+                                        <span class="odoo-modal-icon">🏁</span>
+                                        <h3 id="cc_summary_title">Resumen de Conteo Cíclico</h3>
+                                    </div>
+                                    <button type="button" id="btn_close_cc_summary_x" class="odoo-modal-close-x">✖</button>
+                                </div>
+                                <div class="odoo-modal-body">
+                                    <!-- Summary Cards Grid -->
+                                    <div class="cc-summary-grid">
+                                        <div class="cc-sum-item">
+                                            <span class="cc-sum-val" id="sum_lines_count">0</span>
+                                            <span class="cc-sum-lbl">Ítems Distintos</span>
+                                        </div>
+                                        <div class="cc-sum-item">
+                                            <span class="cc-sum-val" id="sum_sys_qty">0</span>
+                                            <span class="cc-sum-lbl">Sistema Uds</span>
+                                        </div>
+                                        <div class="cc-sum-item">
+                                            <span class="cc-sum-val" id="sum_cnt_qty">0</span>
+                                            <span class="cc-sum-lbl">Contado Uds</span>
+                                        </div>
+                                        <div class="cc-sum-item">
+                                            <span class="cc-sum-val" id="sum_diff_qty">0</span>
+                                            <span class="cc-sum-lbl">Diferencia Uds</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="cc-val-box">
+                                        <span class="cc-val-lbl">Impacto Monetario Total en Diferencias:</span>
+                                        <span class="cc-val-amount" id="sum_diff_usd">$0.00 USD</span>
+                                    </div>
+
+                                    <h4 class="cc-table-heading">Detalle de Líneas Escaneadas:</h4>
+                                    <div class="cc-summary-table-wrapper">
+                                        <table class="cc-summary-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Producto</th>
+                                                    <th class="text-center">Inicial</th>
+                                                    <th class="text-center">Contado</th>
+                                                    <th class="text-center">Dif. Uds</th>
+                                                    <th class="text-center">Dif. $</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="cc_summary_tbody">
+                                                <!-- Dynamic Summary Rows -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="odoo-modal-footer" style="justify-content: space-between;">
+                                    <button type="button" id="btn_close_cc_summary" class="action-btn btn-action-copy">
+                                        Cerrar
+                                    </button>
+                                    <a id="btn_download_excel" href="#" target="_blank" class="action-btn btn-action-whatsapp" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important; text-decoration: none;">
+                                        📥 Descargar Reporte Excel
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Odoo-Style Modal Dialog for Errors -->
+                        <div id="odoo_modal_backdrop" class="odoo-modal-backdrop d-none">
+                            <div class="odoo-modal-card">
+                                <div class="odoo-modal-header">
+                                    <div class="odoo-modal-title">
+                                        <span class="odoo-modal-icon" id="odoo_modal_icon">⚠️</span>
+                                        <h3 id="odoo_modal_heading">Aviso del Sistema Odoo</h3>
+                                    </div>
+                                    <button type="button" id="btn_close_odoo_modal_x" class="odoo-modal-close-x">✖</button>
+                                </div>
+                                <div class="odoo-modal-body">
+                                    <p id="odoo_modal_message" class="odoo-modal-msg-text">Mensaje de aviso...</p>
+                                    <div id="odoo_modal_technical_box" class="odoo-technical-box d-none">
+                                        <span class="tech-title">🔍 Causa del Diagnóstico:</span>
+                                        <pre id="odoo_modal_technical_text" class="tech-code">Razón...</pre>
+                                    </div>
+                                </div>
+                                <div class="odoo-modal-footer">
+                                    <button type="button" id="btn_close_odoo_modal" class="odoo-modal-btn odoo-modal-btn-primary">
+                                        Entendido
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script type="text/javascript" src="/product_barcode_scanner_mobile_appstore/static/src/js/barcode_standalone.js?v=19.0.1.0.0"></script>
+                </body>
+            </html>
+        </t>
+    </template>
+</odoo>
